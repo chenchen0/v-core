@@ -1,9 +1,9 @@
 # v-core
 
 基于 Vue,ElementUI 开发的一组页面组件包，目前包含以下组件：
-  
- Table
-Form（在 vue-form-making-h5 的基础上修改而来）
+
+-   Table
+-   Form（在 vue-form-making-h5 的基础上修改而来）
 
 ## Install
 
