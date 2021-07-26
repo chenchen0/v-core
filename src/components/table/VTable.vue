@@ -21,7 +21,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <div class="v-table-page-ctn">
+        <div class="v-table-page-ctn" v-if="hasPager">
             <el-pagination
                 layout="prev, pager, next"
                 :total="pageInfo.total"
@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import _ from "lodash";
 export default {
     name: "VTable",
     props: {
@@ -89,6 +90,11 @@ export default {
     watch: {
         page() {
             this.pageInfo = this.page;
+        }
+    },
+    computed: {
+        hasPager() {
+            return !_.isEmpty(this.pageInfo);
         }
     }
 };
