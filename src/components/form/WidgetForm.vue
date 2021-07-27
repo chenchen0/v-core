@@ -126,7 +126,7 @@ export default {
                 rules: []
             });
 
-            if (this.data.list[newIndex].type === "radio" || this.data.list[newIndex].type === "checkbox") {
+            if (["radio", "checkbox", "select"].includes(this.data.list[newIndex].type)) {
                 this.$set(this.data.list, newIndex, {
                     ...this.data.list[newIndex],
                     options: {

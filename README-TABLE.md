@@ -12,7 +12,7 @@
 | ---------- | ---------------- | -------- | ------------- |
 | page       | 分页信息         | Object   | null          |
 | remoteFunc | 远程数据请求函数 | Function | null          |
-| cols       | 数据列           | Array    | null          |
+| cols       | 数据列配置       | Array    | null          |
 
 #### page props
 
@@ -34,12 +34,18 @@
 
 remoteFunc 传入 2 个参数：
 
-> 1. page: props.page, 组件接收的的 page 对象。
+> 1. {pageNum, pageSize, sort}, 页码和排序参数。
 
 > 2. callback: Function，回调函数，改函数接收 `data` 参数，`data` 为数据数组。
 
 ```javascript
-function remoteFunc(page, callback) {
+/*
+sort: {
+    prop: "id", //col 的 prop 属性值
+    order: "descending" //排序方式，descending：倒序，ascending：正序
+}
+*/
+function remoteFunc({pageNum, pageSize, sort}, callback) {
     //... to do something
 }
 
@@ -59,6 +65,7 @@ function callback(data) {
       prop: '', //字段名
       width: '', //宽度 px
       fixed: false, //固定列
+      sort: false,  //列排序，可选：false/true/'custom'，详见el-table文档。为'custom'时会将页码重置，并触发 remoteFunc 方法刷新数据
       formatter: function(row, index){},  //优先级高于prop, 支持返回html
       funcs: [{ //功能选项，优先级高于formatter
         name: '详情',   //显示名字
@@ -84,8 +91,8 @@ export default {
         return {
             tablePage: {total: 100, pageNum: 1, pageSize: 10},
             tableCols: [
-                {name: "ID", prop: "id", width: 80},
-                {name: "姓名", prop: "name"},
+                {name: "ID", prop: "id", width: 80, sort: "custom"},
+                {name: "姓名", prop: "name", sort: true},
                 {name: "省份", prop: "province"},
                 {
                     name: "城市",

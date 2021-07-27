@@ -1,12 +1,20 @@
 <template>
     <div class="v-table">
-        <el-table :data="listData" style="width: 100%">
-            <el-table-column :fixed="col.fixed" :width="col.width" :label="col.name" v-for="(col, i) in cols" :key="i">
+        <el-table :data="listData" style="width: 100%" @sort-change="onSortChange">
+            <el-table-column
+                :fixed="col.fixed"
+                :width="col.width"
+                :label="col.name"
+                :prop="col.prop"
+                :sortable="col.sort"
+                v-for="(col, i) in cols"
+                :key="i"
+            >
                 <template v-slot="scope">
                     <div v-if="col.funcs" class="v-func-ctn">
                         <div v-for="(func, j) in col.funcs" :key="j">
                             <div
-                                @click="func.click && func.click(scope.row, j)"
+                                @click="func.click && func.click(scope.row, scope.$index)"
                                 class="v-func"
                                 :class="`v-func-${func.style || 'primary'}`"
                             >
@@ -41,7 +49,7 @@ export default {
     props: {
         // data: Array, //数据
         page: Object, //分页 {total: 100, pageNum: 1, pageSize: 15}
-        remoteFunc: Function, //远程数据请求，function(page, callback){}; callback接收data参数
+        remoteFunc: Function, //远程数据请求，function({pageNum, pageSize, sort}, callback){}; callback接收data参数
         /*
          cols: [
            {
@@ -49,6 +57,7 @@ export default {
               prop: '', //字段名
               width: '', //宽度 px
               fixed: false, //固定列
+              sort: false,  //列排序，可选：false/true/'custom'，详见el-table文档
               formatter: function(row, index){},  //优先级高于prop, 支持返回html
               funcs: [{ //功能选项，优先级高于formatter
                 name: '详情',   //显示名字
@@ -64,7 +73,8 @@ export default {
     data() {
         return {
             listData: this.data,
-            pageInfo: this.page
+            pageInfo: this.page,
+            sort: null
         };
     },
     mounted() {
@@ -73,18 +83,29 @@ export default {
     methods: {
         fetchData() {
             this.$emit("update:page", this.pageInfo);
-            this.remoteFunc &&
-                this.remoteFunc(this.pageInfo, data => {
-                    this.listData = data || [];
-                });
+            this.update();
+        },
+        onSortChange({prop, order, column}) {
+            this.sort = {prop, order};
+            if (column.sortable == "custom") {
+                this.reset();
+            }
         },
         reset() {
             this.pageInfo.pageNum = 1;
-            this.$emit("update:page", this.pageInfo);
             this.fetchData();
         },
         update() {
-            this.fetchData();
+            this.remoteFunc &&
+                this.remoteFunc(
+                    {
+                        ..._.pick(this.pageInfo, ["pageNum", "pageSize"]),
+                        sort: this.sort
+                    },
+                    data => {
+                        this.listData = data || [];
+                    }
+                );
         }
     },
     watch: {

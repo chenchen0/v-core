@@ -1,7 +1,7 @@
 {
     "name": "v-core",
     "description": "基于Vue,ElementUI开发的一组页面组件包，目前包含Table、Form（在vue-form-making-h5的基础上修改而来）",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "author": "lss",
     "license": "MIT",
     "keywords": [
@@ -17,7 +17,7 @@
         "type": "git",
         "url": "https://github.com/chenchen0/v-core"
     },
-    "main": "index.js",
+    "main": "src/index.js",
     "scripts": {
         "serve": "vue-cli-service serve --open",
         "build": "vue-cli-service build",
