@@ -26,6 +26,8 @@ import VForm from "./components/form/GenerateForm.vue";
 import VFormH5 from "./components/form/h5/GenerateFormH5.vue";
 import VTable from "./components/table/VTable";
 
+import VExcel from "./components/excel";
+
 Vue.component("icon", Icon);
 
 /*移动端组件*/
@@ -54,6 +56,6 @@ if (typeof window !== "undefined" && window.Vue) {
     install(window.Vue);
 }
 
-export {install, VMakingForm, VForm, VFormH5, VTable};
+export {install, VMakingForm, VForm, VFormH5, VTable, VExcel};
 
-export default {install, VMakingForm, VForm, VFormH5, VTable};
+export default {install, VMakingForm, VForm, VFormH5, VTable, VExcel};

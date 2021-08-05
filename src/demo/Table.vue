@@ -1,9 +1,15 @@
 <template>
-    <v-table class="v-table-ctn" ref="table" :page.sync="tablePage" :cols="tableCols" :remoteFunc="fetchTableData"></v-table>
+    <div class="demo-table">
+        <div class="funcs">
+            <el-button type="primary" @click="download">下载Excel</el-button>
+        </div>
+        <v-table class="v-table-ctn" ref="table" :page.sync="tablePage" :cols="tableCols" :remoteFunc="fetchTableData"></v-table>
+    </div>
 </template>
 
 <script>
 import _ from "lodash";
+import {VExcel} from "../index";
 
 const DATA = _.times(100, i => {
     return {
@@ -76,7 +82,35 @@ export default {
         },
         showEdit(row, i) {
             console.log("edit", row, i);
+        },
+        download() {
+            VExcel.exportXlsx("测试", [
+                {
+                    name: "第一页",
+                    columns: [
+                        {header: "Id", key: "id", width: 10},
+                        {header: "Name", key: "name", width: 20},
+                        {header: "D.O.B.", key: "DOB", width: 10}
+                    ],
+                    rows: _.times(20, i => {
+                        i += 1;
+                        return {
+                            id: i,
+                            name: "名称 " + i,
+                            DOB: "BOD" + i
+                        };
+                    })
+                }
+            ]);
         }
     }
 };
 </script>
+
+<style lang="scss">
+.demo-table {
+    .funcs {
+        padding: 20px;
+    }
+}
+</style>
