@@ -1,5 +1,7 @@
-import exportXlsx from "./exportXlsx";
+import exportExcel from "./exportExcel";
+import download from "./download";
+import workbook from "./workbook";
 
-export default {exportXlsx};
+export default {exportExcel, download, workbook};
 
-export {exportXlsx};
+export {exportExcel, download, workbook};

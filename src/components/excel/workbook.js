@@ -11,42 +11,47 @@
 const ExcelJS = require("exceljs");
 
 import _ from "lodash";
-import download from "./download";
 
 /*
     fileName: 文件名,
     //sheet页选项，
     sheets: [{
         name: string, sheet名称，默认 “SheetN”
-
-        //其它 exceljs 的选项，可以覆盖组件默认配置
         rows: array,  数据行
 
-
-
-        
+        //其它 exceljs 的选项，包括：
+        //columns, views, pageSetup, properties, headerFooter
     }, ...]
 
 */
-function exportXlsx(fileName, sheets) {
+function workbook(sheets) {
     const workbook = new ExcelJS.Workbook();
     sheets.forEach((sheet, i) => {
+        let {views = [], pageSetup = {}, properties = {}, headerFooter = {}} = sheet;
         let hasHeader = !!sheet.columns;
         const worksheet = workbook.addWorksheet(sheet.name || `Sheet ${i}`, {
             views: [
-                // {
-                //     showGridLines: false
-                // },
                 {
                     state: "frozen",
                     xSplit: 0,
                     ySplit: hasHeader ? 1 : 0
-                }
+                },
+                ...views
             ],
-            properties: {tabColor: {argb: "FF00FF00"}}
+            properties: {
+                defaultRowHeight: 18,
+                defaultColWidth: 15,
+                ...properties
+            },
+            pageSetup: {
+                ...pageSetup
+            },
+            headerFooter: {
+                ...headerFooter
+            }
         });
         let rowIdx = 1;
-        if (sheet.columns) {
+        if (hasHeader) {
             worksheet.columns = sheet.columns;
             worksheet.getRow(1).fill = {
                 type: "pattern",
@@ -56,14 +61,11 @@ function exportXlsx(fileName, sheets) {
             };
             rowIdx++;
         }
-        if (sheet.views) {
-            worksheet.views = sheet.views;
-        }
         _.forEach(sheet.rows, row => {
             worksheet.getRow(rowIdx++).values = row;
         });
     });
-    download(workbook, fileName);
+    return workbook;
 }
 
-export default exportXlsx;
+export default workbook;

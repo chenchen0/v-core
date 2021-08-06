@@ -84,22 +84,17 @@ export default {
             console.log("edit", row, i);
         },
         download() {
-            VExcel.exportXlsx("测试", [
+            VExcel.exportExcel("测试", [
                 {
                     name: "第一页",
                     columns: [
                         {header: "Id", key: "id", width: 10},
-                        {header: "Name", key: "name", width: 20},
-                        {header: "D.O.B.", key: "DOB", width: 10}
+                        {header: "姓名", key: "name"},
+                        {header: "省份", key: "province"},
+                        {header: "城市", key: "city"},
+                        {header: "地址", key: "address", width: 50}
                     ],
-                    rows: _.times(20, i => {
-                        i += 1;
-                        return {
-                            id: i,
-                            name: "名称 " + i,
-                            DOB: "BOD" + i
-                        };
-                    })
+                    rows: DATA
                 }
             ]);
         }

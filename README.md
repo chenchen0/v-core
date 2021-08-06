@@ -2,8 +2,11 @@
 
 基于 Vue,ElementUI 开发的一组页面组件包，目前包含以下组件：
 
--   Table
--   Form（在 vue-form-making-h5 的基础上修改而来）
+| 组件  | 说明                                               |
+| ----- | -------------------------------------------------- |
+| Table | 表格组件                                           |
+| Form  | 表单组件（在 vue-form-making-h5 的基础上修改而来） |
+| Excel | 导出 excel 工具                                    |
 
 ## Install
 
@@ -45,3 +48,14 @@ Vue.component(VTable.name, VTable);
 ## Table
 
 请查看 `README-TABLE.md` 文档
+
+## Excel
+
+请查看 `README-EXCEL.md` 文档
+
+## Version logs
+
+| Version | Upate Date | Descript         |
+| ------- | ---------- | ---------------- |
+| 1.0.5   | 2021-08-06 | add excel module |
+| lower   | -          | no record        |

@@ -30,13 +30,18 @@
 
 #### remoteFunc props
 
-远程数据调用函数，用于获取数据。
+远程数据函数，用于获取数据。
 
-remoteFunc 传入 2 个参数：
+**触发时机**：表格初始化、页码变化、排序变化、主动重置（reset 方法被调用）等，所有需要改变表格数据的时机，均会调用该方法获取数据。
 
-> 1. {pageNum, pageSize, sort}, 页码和排序参数。
+**方法参数**：
 
-> 2. callback: Function，回调函数，改函数接收 `data` 参数，`data` 为数据数组。
+| Param Index | Description    | Detail                    |
+| ----------- | -------------- | ------------------------- |
+| pageInfo    | 页码、排序参数 | {pageNum, pageSize, sort} |
+| callback    | 回调函数       | function (data) { ... }   |
+
+> 使用方法如下：
 
 ```javascript
 /*
@@ -46,11 +51,10 @@ sort: {
 }
 */
 function remoteFunc({pageNum, pageSize, sort}, callback) {
-    //... to do something
-}
+    //... to do something, get table data
 
-function callback(data) {
-    //... to do something
+    //调用callback方法将数据传递给表格
+    callback(data);
 }
 ```
 
@@ -78,14 +82,23 @@ function callback(data) {
 
 ```
 
+## Methods
+
+> 此处仅列出必要的对外方法，并非组件所有方法，有兴趣的同学可以阅读组件源码学习了解！
+
+| Method | Description                              | Params |
+| ------ | ---------------------------------------- | ------ |
+| reset  | 重置页码，并触发 remoteFunc 方法获取数据 | none   |
+
 ## Useage
 
 ```html
-//template <v-table ref="table" :page.sync="tablePage" :cols="tableCols" :remoteFunc="fetchTableData"> </v-table>
+<!-- template -->
+<v-table ref="table" :page.sync="tablePage" :cols="tableCols" :remoteFunc="fetchTableData"> </v-table>
 ```
 
 ```javascript
-//secript
+//script
 export default {
     data() {
         return {
