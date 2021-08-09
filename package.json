@@ -1,9 +1,10 @@
 {
     "name": "v-core",
+    // "name": "@norris.chen/v-core",
     "description": "基于Vue,ElementUI开发的一组页面组件包，目前包含Table、Form（在vue-form-making-h5的基础上修改而来）",
     "version": "1.0.5",
-    "author": "lss",
-    "license": "MIT",
+    "author": "Abe",
+    "license": "none",
     "keywords": [
         "component",
         "vue",
