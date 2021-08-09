@@ -1,6 +1,5 @@
 {
     "name": "v-core",
-    // "name": "@norris.chen/v-core",
     "description": "基于Vue,ElementUI开发的一组页面组件包，目前包含Table、Form（在vue-form-making-h5的基础上修改而来）",
     "version": "1.0.5",
     "author": "Abe",
@@ -32,6 +31,7 @@
         "element-ui": "^2.15.5",
         "exceljs": "^4.2.1",
         "file-saver": "^2.0.5",
+        "jquery": "^3.6.0",
         "jsoneditor": "^5.24.6",
         "lodash": "^4.17.21",
         "multiparty": "^4.2.1",
@@ -39,6 +39,7 @@
         "qiniu": "^7.2.1",
         "qiniu-js": "^2.5.1",
         "regenerator-runtime": "^0.13.9",
+        "three": "^0.131.3",
         "tinymce": "^4.8.4",
         "tui-color-picker": "^2.2.0",
         "tui-editor": "^1.2.6",

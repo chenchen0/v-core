@@ -19,6 +19,10 @@ export default new Router({
             component: Table
         },
         {
+            path: "/3d",
+            component: () => import("../demo/3DStore")
+        },
+        {
             path: "/test",
             name: "test",
             component: Test
