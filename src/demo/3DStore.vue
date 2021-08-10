@@ -20,9 +20,10 @@ export default {
     methods: {
         createStore() {
             this.store = new Store({
-                domContainer: "#store-container"
+                domContainer: "#store-container",
+                showCoords: process.env.NODE_ENV == "development"
             });
-            this.store.add(new Box().mesh);
+            this.store.add(new Box().getObject3d());
         }
     }
 };
