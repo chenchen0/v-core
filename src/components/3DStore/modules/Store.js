@@ -1,9 +1,12 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 import $ from "jquery";
 import _ from "lodash";
 
 import Box from "./Box";
+
+const _dev = process.env.NODE_ENV == "development";
 
 export default class Store {
     //动画列表
@@ -23,8 +26,9 @@ export default class Store {
         background = new THREE.Color(0xe0e0e0), //背景色
         cameraPos = [-200, 300, 500],
         cameraView = [1, 5000], //摄像机视图距离区间
-        lookAt = [0, 100, 0],
-        showCoords = false
+        lookAt = [0, 160, 0], //摄像机目标点
+        fog, //雾
+        shadow = false //阴影
     }) {
         this.el = $(domContainer);
         if (!domContainer || this.el.length == 0) {
@@ -35,28 +39,61 @@ export default class Store {
         //场景
         this.scene = new THREE.Scene();
         this.scene.background = background;
-        this.scene.fog = new THREE.Fog("#ccc", ...cameraView);
+        this.scene.fog = fog || new THREE.FogExp2("#ccc", 1.2 / cameraView[1]); //new THREE.Fog("#ccc", ...cameraView);
         //网格
         this.setGrid(grids);
         //光源
         this.setLights(lights);
         //地面
-        this.setGround(...groundSize);
+        if (groundSize) {
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(...groundSize),
+                new THREE.MeshPhongMaterial({color: 0xeeeeee, depthWrite: false})
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            this.setGround(ground);
+        }
         //坐标系
-        this.showCoords(showCoords);
+        this.showCoords(_dev);
         //相机
         this.camera = camera || new THREE.PerspectiveCamera(75, width / height, ...cameraView);
         this.camera.position.set(...cameraPos);
-        this.camera.lookAt(...lookAt);
         //渲染器
         this.renderer = renderer || new THREE.WebGLRenderer({antialias: true});
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
+        this.renderer.shadowMap.enabled = !!shadow;
+        // this.renderer.shadowMap.type = THREE.BasicShadowMap;
         //控制器
         this.setCameraCtrl();
+        this.lookAt(lookAt);
         //开始渲染
         this.el.empty();
         this.el.append(this.renderer.domElement);
+        _dev && this._showStats();
         this._animate();
+        this._resize();
+    }
+    _showStats() {
+        this._stats = new Stats();
+        this.el.append(this._stats.dom);
+    }
+    _resize() {
+        this._resizeObserver && this._resizeObserver.disconnect();
+        let timeout = null;
+        this._resizeObserver = new ResizeObserver(entries => {
+            timeout && clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                let width = this.el.width(),
+                    height = this.el.height();
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this._ctrls.camera && this._ctrls.camera.update();
+                this.renderer.setSize(width, height);
+            }, 200);
+        });
+        this._resizeObserver.observe(this.el[0]);
     }
 
     _animate = time => {
@@ -71,16 +108,12 @@ export default class Store {
         _.forEach(this._ctrls, ctrl => {
             ctrl.update();
         });
+        this._stats && this._stats.update();
         this.renderer.render(this.scene, this.camera);
     };
-    setGround(x, z) {
+    setGround(ground) {
         this.remove(this._ground);
-        this._ground = new Box({
-            size: [x, 1, z],
-            position: [0, -1, 0],
-            receiveShadow: true,
-            color: 0xeeeeee
-        }).getObject3d();
+        this._ground = ground;
         this.add(this._ground);
     }
     showCoords(show) {
@@ -124,16 +157,17 @@ export default class Store {
         if (!lights) {
             let ambient = new THREE.AmbientLight(0xdddddd); //环境光
             let dire = new THREE.DirectionalLight(0xffffff, 0.3); // 平行光
-            dire.position.set(1, 1, 1);
+            dire.position.set(10000, 10000, 10000);
             dire.castShadow = true;
-            // dire.bias = 0.05;
-            // dire.shadow.camera.near = 1; // default
-            // dire.shadow.camera.far = 100; // default
-            // dire.target = new THREE.Object3D();
-
-            let dire2 = new THREE.DirectionalLight(0xffffff, 0.9); // 平行光
-            dire2.position.set(-1, -1, -1);
-            // dire2.castShadow = true;
+            // dire.bias = -0.01;
+            dire.shadow.camera.near = 1;
+            dire.shadow.camera.far = 20000;
+            dire.shadow.camera.top = -10000;
+            dire.shadow.camera.right = 10000;
+            dire.shadow.camera.left = -10000;
+            dire.shadow.camera.bottom = 10000;
+            dire.shadow.mapSize.set(8192, 8192);
+            // dire.shadow.camera.updateProjectionMatrix();
 
             lights = [ambient, dire];
         }
@@ -141,7 +175,7 @@ export default class Store {
         this._lights.forEach(light => {
             this.scene.add(light);
             if (light.target) {
-                this.scene.add(light.target);
+                // this.scene.add(light.target);
             }
         });
     }
@@ -157,6 +191,13 @@ export default class Store {
             ctrl.maxDistance = maxDistance;
         }
         this._ctrls.camera = ctrl;
+    }
+    lookAt(lookAt) {
+        if (this._ctrls.camera) {
+            this._ctrls.camera.target.set(...lookAt);
+        } else {
+            this.camera.lookAt(...lookAt);
+        }
     }
     addAnimate(key, func) {
         this._animateFuncs[key] = func;
