@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {Store, Box, Shelf} from "../v3DStore";
+import {Store, Box, Shelf} from "../V3DStore";
 import * as THREE from "three";
 
 export default {

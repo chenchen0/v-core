@@ -23,6 +23,10 @@ export default new Router({
             component: () => import("../demo/3DStore")
         },
         {
+            path: "/vr",
+            component: () => import("../demo/VR")
+        },
+        {
             path: "/test",
             name: "test",
             component: Test

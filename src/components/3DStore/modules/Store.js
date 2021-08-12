@@ -71,8 +71,11 @@ export default class Store {
         //开始渲染
         this.el.empty();
         this.el.append(this.renderer.domElement);
+        //状态监视
         _dev && this._showStats();
+        //动画
         this._animate();
+        //容器尺寸变化
         this._resize();
     }
     _showStats() {
