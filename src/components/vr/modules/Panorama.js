@@ -3,11 +3,12 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import $ from "jquery";
 import _ from "lodash";
+import tuiEditorEditorAll from "tui-editor/dist/tui-editor-Editor-all";
 
 const _dev = process.env.NODE_ENV == "development";
 
 const atmosphereMaterial = {
-    uniforms: {c: {type: "f", value: 0.5}, p: {type: "f", value: 4.0}},
+    uniforms: {c: {type: "f", value: 0.5}, p: {type: "f", value: 3}},
     vertexShader: `
         varying vec3 vNormal;
         void main() 
@@ -43,7 +44,8 @@ export default class Panorama {
         domContainer, // string/dom，视图容器
         grids = null, // bool/[GridHelper] 网格
         coords = false, //bool, 显示坐标系
-        background = new THREE.Color(0xe0e0e0), //背景色, color / texture
+        background = null, //new THREE.Color(0xe0e0e0), //背景色, color / texture
+        transparent = false, //透明背景
         cameraPos = [0, 0, 200],
         cameraView = [1, 1000], //摄像机视图距离区间
         lookAt = [0, 0, 0], //摄像机目标点
@@ -52,7 +54,8 @@ export default class Panorama {
         globe = {
             //球体选项
             radius: 0, //球半径，0 表示不创建球体
-            materialProps: {}, //球体材质参数
+            materialProps: {}, //球体材质参数，用于创建球体
+            mesh: null, //直接指定mesh，优先级高于materialProps
             outGlow: false //外发光
         }
     }) {
@@ -65,7 +68,9 @@ export default class Panorama {
             height = this.el.height();
         //场景
         this.scene = new THREE.Scene();
-        this.scene.background = background;
+        if (background && !transparent) {
+            this.scene.background = background;
+        }
         //网格
         this.setGrid(grids);
         //光源
@@ -73,18 +78,18 @@ export default class Panorama {
         //坐标系
         this.showCoords(coords);
         //球体
-        globe.radius && this.createGlobe(globe.radius, globe.materialProps);
+        globe.radius && this.createGlobe(globe);
         //相机
         this.camera = camera || new THREE.PerspectiveCamera(75, width / height, ...cameraView);
         this.camera.position.set(...cameraPos);
         // this.camera.layers.enable(1);
         //渲染器
-        this.renderer = renderer || new THREE.WebGLRenderer({antialias: true});
+        this.renderer = renderer || new THREE.WebGLRenderer({antialias: true, alpha: transparent});
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.setSize(width, height);
-        this.renderer.autoClear = false;
-        this.renderer.setClearColor(new THREE.Color(0x000000), 0.0);
+        // this.renderer.setClearColor(new THREE.Color(0x000000), 0.0);
+        // this.renderer.autoClear = false;
         // this.renderer.shadowMap.type = THREE.BasicShadowMap;
         //控制器
         this.setCameraCtrl(cameraCtrl);
@@ -133,21 +138,19 @@ export default class Panorama {
             ctrl.update();
         });
         this._stats && this._stats.update();
-        this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
-        this.atmosphereScene && this.renderer.render(this.atmosphereScene, this.camera);
     };
-    createGlobe(radius, materialProps) {
-        const geometry = new THREE.IcosahedronGeometry(radius, 15);
-        const material = new THREE.MeshLambertMaterial({...materialProps});
-        const mesh = new THREE.Mesh(geometry, material);
+    createGlobe({radius, materialProps, mesh, outGlow}) {
+        if (!mesh) {
+            const geometry = new THREE.IcosahedronGeometry(radius, 15);
+            const material = new THREE.MeshLambertMaterial({...materialProps});
+            mesh = new THREE.Mesh(geometry, material);
+        }
+        this._globe = mesh;
         this.add(mesh);
-        this.createOutGlow(mesh);
+        outGlow && this.createOutGlow(mesh);
     }
     createOutGlow(baseMesh) {
-        if (!this.atmosphereScene) {
-            this.atmosphereScene = new THREE.Scene();
-        }
         let material = new THREE.ShaderMaterial({
             transparency: true,
             ...atmosphereMaterial
@@ -155,14 +158,7 @@ export default class Panorama {
         var mesh = new THREE.Mesh(baseMesh.geometry.clone(), material);
         mesh.scale.set(1.1, 1.1, 1.1);
         mesh.material.side = THREE.BackSide;
-        this.atmosphereScene.add(mesh);
-        // this.add(mesh);
-        // this.atmosphereScene.add(baseMesh);
-
-        var blackMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
-        var sphere = new THREE.Mesh(baseMesh.geometry.clone(), blackMaterial);
-        // sphere.scale.set(0.9, 0.9, 0.9);
-        // this.atmosphereScene.add(sphere);
+        this.add(mesh);
     }
     setGround(ground) {
         this.remove(this._ground);
@@ -209,9 +205,9 @@ export default class Panorama {
         this.remove(this._lights);
         if (!lights) {
             let ambient = new THREE.AmbientLight(0xffffff); //环境光
-            let dire = new THREE.DirectionalLight(0xffffff, 0.3); // 平行光
-            dire.position.set(1, 1, 1);
-            let hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+            // let dire = new THREE.DirectionalLight(0xffffff, 0.3); // 平行光
+            // dire.position.set(1, 1, 1);
+            // let hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
             lights = [ambient];
         }
         this._lights = lights;
