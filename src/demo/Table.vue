@@ -64,6 +64,13 @@ export default {
                             name: "修改",
                             style: "warning",
                             click: this.showEdit
+                        },
+                        {
+                            name: "修改",
+                            style: "danger",
+                            show: (row, i) => {
+                                return i % 2 == 1;
+                            }
                         }
                     ]
                 }
