@@ -3,7 +3,6 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import $ from "jquery";
 import _ from "lodash";
-import tuiEditorEditorAll from "tui-editor/dist/tui-editor-Editor-all";
 
 const _dev = process.env.NODE_ENV == "development";
 

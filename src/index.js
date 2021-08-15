@@ -27,7 +27,6 @@ import VFormH5 from "./components/form/h5/GenerateFormH5.vue";
 import VTable from "./components/table/VTable";
 
 import VExcel from "./components/excel";
-import VR from "./components/vr";
 
 Vue.component("icon", Icon);
 
