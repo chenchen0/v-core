@@ -26,7 +26,7 @@ export default {
             const textureLoader = new THREE.TextureLoader();
 
             //场景贴图
-            const background = textureLoader.load(require("../assets/textures/house.jpg"));
+            const background = textureLoader.load(require("../assets/textures/earth2.jpg"));
             background.mapping = THREE.EquirectangularReflectionMapping;
             background.encoding = THREE.sRGBEncoding;
 
@@ -61,10 +61,10 @@ export default {
                     radius: 100,
                     materialProps: {
                         // color: new THREE.Color(0x54a8ec),
-                        // envMap: map,
+                        // envMap: background,
                         map
                         // alphaMap: map,
-                        // alphaTest: 0.9,
+                        // alphaTest: 0.9
                         // emissive: new THREE.Color(pointColor)
                         // emissiveIntensity: 0.2
                     },

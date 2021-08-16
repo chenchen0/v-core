@@ -23,8 +23,8 @@ export default {
     },
     methods: {
         drawPoints(rows = 128, cols = 256, width = 1, height = 1) {
-            this.fillRect(0, 0, this.width, this.height, "#29357d");
-            this.ctx.fillStyle = "#999dff";
+            // this.fillRect(0, 0, this.width, this.height, "#29357d");
+            this.ctx.fillStyle = "#a5ddff";
             let xStep = this.width / cols;
             let yStep = this.height / rows;
             let ctx = this.ctx;
