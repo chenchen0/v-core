@@ -14,7 +14,6 @@
                     <div v-if="col.funcs" class="v-func-ctn">
                         <div v-for="(func, j) in col.funcs" :key="j">
                             <div
-                                v-if="!func.show || func.show(scope.row, scope.$index)"
                                 @click="func.click && func.click(scope.row, scope.$index)"
                                 class="v-func"
                                 :class="`v-func-${func.style || 'primary'}`"
@@ -132,8 +131,8 @@ export default {
     .v-func-ctn {
         display: flex;
         flex-wrap: wrap;
-        & > :not(:last-child) {
-            margin-right: 10px;
+        & > :not(:last-child) .v-func {
+            margin-right: 15px;
         }
     }
     .v-func {

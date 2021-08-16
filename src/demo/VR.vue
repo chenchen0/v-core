@@ -31,7 +31,7 @@ export default {
             background.encoding = THREE.sRGBEncoding;
 
             //球体贴图
-            const map = textureLoader.load(require("../assets/textures/map-mask.jpg"));
+            const map = textureLoader.load(require("../assets/textures/points.png"));
             map.mapping = THREE.EquirectangularReflectionMapping;
             map.encoding = THREE.sRGBEncoding;
 
@@ -50,7 +50,7 @@ export default {
 
             this.vr = new Panorama({
                 domContainer: "#vr-container",
-                background,
+                // background,
                 // background: new THREE.Color(0x001c38),
                 // lookAt: [0, 50, 0],
                 cameraPos: [0, 100, 180],
@@ -60,19 +60,43 @@ export default {
                 globe: {
                     radius: 100,
                     materialProps: {
-                        color: new THREE.Color(0x54a8ec),
+                        // color: new THREE.Color(0x54a8ec),
                         // envMap: map,
-                        map,
+                        map
                         // alphaMap: map,
-                        alphaTest: 0.9,
-                        emissive: new THREE.Color(pointColor)
+                        // alphaTest: 0.9,
+                        // emissive: new THREE.Color(pointColor)
                         // emissiveIntensity: 0.2
                     },
                     outGlow: true
                     // mesh: points
                 }
             });
-            this.vr.add(points);
+            // this.vr.add(points);
+            // this.addLines();
+        },
+        addLines() {
+            const color = "#519be5";
+            const vertices = [],
+                divisions = 50;
+            _.times(divisions, i => {
+                const v = (i / divisions) * (Math.PI * 2);
+                const x = Math.sin(v);
+                const z = Math.cos(v);
+                vertices.push(x, 0, z);
+            });
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+            const material = new THREE.LineDashedMaterial({
+                color,
+                linewidth: 10,
+                dashSize: 5,
+                gapSize: 5
+            });
+            const line = new THREE.Line(geometry, material);
+            line.scale.setScalar(40);
+            line.position.set(100, 0, 0);
+            this.vr.add(line);
         }
     }
 };

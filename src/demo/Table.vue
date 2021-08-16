@@ -66,7 +66,7 @@ export default {
                             click: this.showEdit
                         },
                         {
-                            name: "修改",
+                            name: "删除",
                             style: "danger",
                             show: (row, i) => {
                                 return i % 2 == 1;

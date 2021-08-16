@@ -204,7 +204,7 @@ export default class Panorama {
         this.remove(this._lights);
         if (!lights) {
             let ambient = new THREE.AmbientLight(0xffffff); //环境光
-            // let dire = new THREE.DirectionalLight(0xffffff, 0.3); // 平行光
+            // let dire = new THREE.DirectionalLight(0xffffff, 1); // 平行光
             // dire.position.set(1, 1, 1);
             // let hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
             lights = [ambient];

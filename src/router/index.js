@@ -27,6 +27,10 @@ export default new Router({
             component: () => import("../demo/VR")
         },
         {
+            path: "/gt",
+            component: () => import("../demo/GlobeTexture")
+        },
+        {
             path: "/test",
             name: "test",
             component: Test
