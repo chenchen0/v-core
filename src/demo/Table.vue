@@ -3,7 +3,14 @@
         <div class="funcs">
             <el-button type="primary" @click="download">下载Excel</el-button>
         </div>
-        <v-table class="v-table-ctn" ref="table" :page.sync="tablePage" :cols="tableCols" :remoteFunc="fetchTableData"></v-table>
+        <v-table
+            class="v-table-ctn"
+            ref="table"
+            :loading="true"
+            :page.sync="tablePage"
+            :cols="tableCols"
+            :remoteFunc="fetchTableData"
+        ></v-table>
     </div>
 </template>
 
@@ -82,7 +89,9 @@ export default {
             console.log(pageNum, pageSize, sort);
             let start = (pageNum - 1) * pageSize;
             let data = DATA.slice(start, start + 10);
-            callback && callback(data);
+            setTimeout(() => {
+                callback && callback(data);
+            }, 1000);
         },
         showDetail(row, i) {
             console.log("detail", row, i);

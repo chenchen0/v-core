@@ -43,13 +43,17 @@
 </template>
 
 <script>
+import {Loading} from "element-ui";
 import _ from "lodash";
+import {error} from "jquery";
 export default {
     name: "VTable",
     props: {
         // data: Array, //数据
         page: Object, //分页 {total: 100, pageNum: 1, pageSize: 15}
-        remoteFunc: Function, //远程数据请求，function({pageNum, pageSize, sort}, callback){}; callback接收data参数
+        remoteFunc: Function, //远程数据请求，function({pageNum, pageSize, sort}, succFun, errFun){}; callback接收data参数
+        loading: Boolean, //加载数据时，是否显示loading
+        loadingProps: Object, //自定义loading参数
         /*
          cols: [
            {
@@ -74,7 +78,9 @@ export default {
         return {
             listData: this.data,
             pageInfo: this.page,
-            sort: null
+            sort: null,
+
+            loadingInstance: null
         };
     },
     mounted() {
@@ -96,16 +102,41 @@ export default {
             this.fetchData();
         },
         update() {
-            this.remoteFunc &&
+            if (this.remoteFunc) {
+                this.openLoading();
                 this.remoteFunc(
                     {
                         ..._.pick(this.pageInfo, ["pageNum", "pageSize"]),
                         sort: this.sort
                     },
                     data => {
+                        this.closeLoading();
                         this.listData = data || [];
+                    },
+                    error => {
+                        this.closeLoading();
                     }
                 );
+            }
+        },
+        openLoading() {
+            if (!this.loading) {
+                return;
+            }
+            this.loadingInstance = Loading.service({
+                fullscreen: true,
+                lock: true,
+                ...this.loadingProps
+            });
+            setTimeout(this.closeLoading, 5000);
+        },
+        closeLoading() {
+            if (this.loadingInstance) {
+                this.$nextTick(() => {
+                    this.loadingInstance.close();
+                    this.loadingInstance = null;
+                });
+            }
         }
     },
     watch: {
