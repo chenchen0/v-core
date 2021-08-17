@@ -7,7 +7,7 @@ import _ from "lodash";
 const _dev = process.env.NODE_ENV == "development";
 
 const atmosphereMaterial = {
-    uniforms: {c: {type: "f", value: 0.5}, p: {type: "f", value: 3}},
+    uniforms: {c: {type: "f", value: 1}, p: {type: "f", value: 12}},
     vertexShader: `
         varying vec3 vNormal;
         void main() 
@@ -55,7 +55,8 @@ export default class Panorama {
             radius: 0, //球半径，0 表示不创建球体
             materialProps: {}, //球体材质参数，用于创建球体
             mesh: null, //直接指定mesh，优先级高于materialProps
-            outGlow: false //外发光
+            outGlow: false, //外发光
+            shaderParams: null //外发光参数，参考 atmosphereMaterial
         }
     }) {
         this.el = $(domContainer);
@@ -139,7 +140,7 @@ export default class Panorama {
         this._stats && this._stats.update();
         this.renderer.render(this.scene, this.camera);
     };
-    createGlobe({radius, materialProps, mesh, outGlow}) {
+    createGlobe({radius, materialProps, mesh, outGlow, shaderParams}) {
         if (!mesh) {
             const geometry = new THREE.IcosahedronGeometry(radius, 15);
             const material = new THREE.MeshLambertMaterial({...materialProps});
@@ -147,12 +148,13 @@ export default class Panorama {
         }
         this._globe = mesh;
         this.add(mesh);
-        outGlow && this.createOutGlow(mesh);
+        outGlow && this.createOutGlow(mesh, shaderParams);
     }
-    createOutGlow(baseMesh) {
+    createOutGlow(baseMesh, shaderParams) {
         let material = new THREE.ShaderMaterial({
             transparency: true,
-            ...atmosphereMaterial
+            ...atmosphereMaterial,
+            ...shaderParams
         });
         var mesh = new THREE.Mesh(baseMesh.geometry.clone(), material);
         mesh.scale.set(1.1, 1.1, 1.1);
