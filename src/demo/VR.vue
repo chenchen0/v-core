@@ -60,7 +60,7 @@ export default {
                 globe: {
                     radius: 100,
                     materialProps: {
-                        // color: new THREE.Color(0x54a8ec),
+                        color: new THREE.Color(0x54a8ec),
                         // envMap: background,
                         map
                         // alphaMap: map,
@@ -69,7 +69,19 @@ export default {
                         // emissiveIntensity: 0.2
                     },
                     outGlow: true,
-                    shaderParams: {uniforms: {c: {type: "f", value: 1.1}, p: {type: "f", value: 12}}}
+                    shaderParams: {
+                        uniforms: {c: {type: "f", value: 1.1}, p: {type: "f", value: 12}},
+                        fragmentShader: `
+                            uniform float c;
+                            uniform float p;
+                            varying vec3 vNormal;
+                            void main() 
+                            {
+                                float intensity = pow( c - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), p ); 
+                                gl_FragColor = vec4( 0.2, 0.6, 1.0, 1.0 ) * intensity;
+                            }
+                        `
+                    }
                     // mesh: points
                 }
             });
