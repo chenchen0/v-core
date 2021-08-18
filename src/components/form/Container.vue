@@ -388,7 +388,7 @@ export default {
         widgetForm: {
             deep: true,
             handler: function(val) {
-                console.log(this.$refs.widgetForm);
+                // console.log(this.$refs.widgetForm);
             }
         }
     }
