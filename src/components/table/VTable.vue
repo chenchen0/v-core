@@ -14,6 +14,7 @@
                     <div v-if="col.funcs" class="v-func-ctn">
                         <div v-for="(func, j) in col.funcs" :key="j">
                             <div
+                                v-if="!func.show || func.show(scope.row, scope.$index)"
                                 @click="func.click && func.click(scope.row, scope.$index)"
                                 class="v-func"
                                 :class="`v-func-${func.style || 'primary'}`"
