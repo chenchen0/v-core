@@ -1,7 +1,7 @@
 {
-    "name": "v-core",
+    "name": "@norris.chen/v-core",
     "description": "基于Vue,ElementUI开发的一组页面组件包，目前包含Table、Form（在vue-form-making-h5的基础上修改而来）",
-    "version": "1.0.13",
+    "version": "1.0.15",
     "author": "Abe",
     "license": "none",
     "keywords": [
@@ -17,12 +17,16 @@
         "type": "git",
         "url": "https://github.com/chenchen0/v-core"
     },
-    "main": "src/index.js",
+    "main": "lib/index.js",
     "scripts": {
         "serve": "vue-cli-service serve --open",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
-        "build-bundle": "vue-cli-service build --target lib --name VCore ./src/indexBundle.js"
+        "build-index": "vue-cli-service build --target lib --dest ./lib --modern --name index ./src/index.js && mv ./lib/index.umd.min.js ./lib/index.js",
+        "build-3dStore": "vue-cli-service build --target lib --dest ./lib --no-clean --name V3DStore ./src/V3DStore.js && mv ./lib/V3DStore.umd.min.js ./lib/V3DStore.js",
+        "build-vr": "vue-cli-service build --target lib --dest ./lib --no-clean --name VR ./src/VR.js && mv ./lib/VR.umd.min.js ./lib/VR.js",
+        "build-lib": "npm run build-index && npm run build-3dStore && npm run build-vr",
+        "publish-local": "npm publish --registry http://192.168.0.110:8081/repository/npm-fe-hosted/"
     },
     "dependencies": {
         "axios": "^0.18.0",

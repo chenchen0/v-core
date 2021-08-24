@@ -5,20 +5,20 @@ import ElementUI from "element-ui";
 
 import "element-ui/lib/theme-chalk/index.css";
 
-import VCore from "./index";
-Vue.use(VCore);
-
-import * as filters from "./filters"; // 全局vue filter
+// import * as filters from "./filters"; // 全局vue filter
 // register global utility filters.
-Object.keys(filters).forEach(key => {
-    Vue.filter(key, filters[key]);
-});
-
+// Object.keys(filters).forEach(key => {
+//     Vue.filter(key, filters[key]);
+// });
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI, {size: "small"});
 
+// import VCore from "./index";
+import VCore from "../lib/index.umd";
+Vue.use(VCore);
+
 new Vue({
     router,
-    render: h => h(App),
+    render: h => h(App)
 }).$mount("#app");

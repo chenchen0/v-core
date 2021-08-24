@@ -1,4 +1,9 @@
 module.exports = {
-    productionSourceMap: false
-    // configureWebpack: {}
+    productionSourceMap: false,
+    configureWebpack: {
+        output: {
+            libraryExport: "default"
+        }
+    },
+    css: {extract: false}
 };

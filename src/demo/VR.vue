@@ -9,6 +9,32 @@ import {Panorama} from "../VR";
 
 import * as THREE from "three";
 
+const latlngTo3d = function(lng, lat, radius = 1) {
+    let phi = ((90 - lat) * Math.PI) / 180;
+    let theta = ((180 - lng) * Math.PI) / 180;
+
+    let x = radius * Math.sin(phi) * Math.cos(theta),
+        y = radius * Math.cos(phi),
+        z = radius * Math.sin(phi) * Math.sin(theta);
+    return {x, y, z};
+};
+
+const vec3 = function({x, y, z}) {
+    return new THREE.Vector3(x, y, z);
+};
+
+const curvePoints = function(lng1, lat1, lng2, lat2, radius, points = 10) {
+    let lng3 = (lng1 + lng2) / 2;
+    let lat3 = (lat1 + lat2) / 2;
+    let from = latlngTo3d(lng1, lat1, radius);
+    let to = latlngTo3d(lng2, lat2, radius);
+    let length = new THREE.LineCurve3(vec3(from), vec3(to)).getLength();
+    let center = latlngTo3d(lng3, lat3, radius * (length / radius / 2 + 1));
+    let curve = new THREE.QuadraticBezierCurve3(vec3(from), vec3(center), vec3(to));
+    let res = curve.getPoints(points);
+    return res;
+};
+
 export default {
     data() {
         return {
@@ -56,7 +82,7 @@ export default {
                 cameraPos: [0, 100, 180],
                 // grids: true,
                 transparent: true,
-                // autoRotateSpeed: 0,
+                autoRotateSpeed: 0,
                 globe: {
                     radius: 100,
                     materialProps: {
@@ -75,9 +101,9 @@ export default {
                             uniform float c;
                             uniform float p;
                             varying vec3 vNormal;
-                            void main() 
+                            void main()
                             {
-                                float intensity = pow( c - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), p ); 
+                                float intensity = pow( c - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), p );
                                 gl_FragColor = vec4( 0.2, 0.6, 1.0, 1.0 ) * intensity;
                             }
                         `
@@ -86,7 +112,127 @@ export default {
                 }
             });
             // this.vr.add(points);
-            this.addLines();
+            // this.addLines();
+            this.addCurves();
+        },
+        addCurves() {
+            let cites = {
+                鄂尔多斯: [109.781327, 39.608266],
+                齐齐哈尔: [123.97, 47.33],
+                青岛: [120.33, 36.07],
+                日照: [119.46, 35.42],
+                拉萨: [91.11, 29.97],
+                上海: [121.48, 31.22],
+                攀枝花: [101.718637, 26.582347],
+                厦门: [118.1, 24.46],
+                烟台: [121.39, 37.52],
+                福州: [119.3, 26.08],
+                宁波: [121.56, 29.86],
+                广州: [113.23, 23.16],
+                昆明: [102.73, 25.04],
+                深圳: [114.07, 22.62],
+                海口: [110.35, 20.02],
+                大连: [121.62, 38.92],
+                苏州: [120.62, 31.32],
+                三亚: [109.511909, 18.252847],
+                呼和浩特: [111.65, 40.82],
+                成都: [104.06, 30.67],
+                西安: [108.95, 34.27],
+                台州: [121.420757, 28.656386],
+                克拉玛依: [84.77, 45.59],
+                北京: [116.46, 39.92],
+                包头: [110, 40.58],
+                乌鲁木齐: [87.68, 43.77],
+                杭州: [120.19, 30.26],
+                兰州: [103.73, 36.03],
+                沧州: [116.83, 38.33],
+                天津: [117.2, 39.13],
+                郑州: [113.65, 34.76],
+                哈尔滨: [126.63, 45.75],
+                石家庄: [114.48, 38.03],
+                长沙: [113, 28.21],
+                廊坊: [116.7, 39.53],
+                合肥: [117.27, 31.86]
+            };
+            let color = 0xb85dad;
+            // 武汉: [114.31, 30.52],
+            let wuhan = [114.31, 30.52];
+            // lines
+            let lines = _.map(cites, latlng => {
+                let points = curvePoints(...wuhan, ...latlng, 100, 50);
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({color});
+                const line = new THREE.Line(geometry, material);
+                return line;
+            });
+            this.vr.add(lines);
+            // points
+            // const geometry = new THREE.BufferGeometry().setFromPoints(_.map(cites, latlng => vec3(latlngTo3d(...latlng, 100))));
+            // const material = new THREE.PointsMaterial({
+            //     size: 2,
+            //     color
+            // });
+            // const points = new THREE.Points(geometry, material);
+            // points.lookAt(0, 0, 0);
+
+            let points = _.map(_.values(cites), (latlng, i) => {
+                let {x, y, z} = latlngTo3d(...latlng, 100);
+                let geometry = new THREE.CircleGeometry(0.5);
+                let material = new THREE.MeshBasicMaterial({
+                    color,
+                    side: THREE.BackSide
+                });
+                let mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(x, y, z);
+                mesh.lookAt(0, 0, 0);
+                lines[i].add(mesh);
+
+                let ringGeometry = new THREE.RingGeometry(0.4, 0.5, 16);
+                let ringMaterial = new THREE.MeshBasicMaterial({
+                    color,
+                    side: THREE.BackSide,
+                    transparent: true
+                });
+                let ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.set(x, y, z);
+                ring.lookAt(0, 0, 0);
+                ring.name = "ring-" + i;
+                lines[i].add(ring);
+                return mesh;
+            });
+            // this.vr.add(points);
+            // animate
+            this.vr.addAnimate("lines", time => {
+                let duration = 10000; //动画时长，ms
+                let ringDura = 0.1; // ring 动画时长占比
+                let _rate = (time % duration) / duration;
+                _.forEach(lines, (line, i) => {
+                    let ring = line.getObjectByName("ring-" + i);
+                    let rate = _rate + i / lines.length;
+                    if (rate > 1) {
+                        rate -= 1;
+                    }
+                    // line.material.color.setHSL(rate, 1, 0.5);
+                    let geo = line.geometry;
+                    let count = geo.getAttribute("position").count;
+                    let start = 0,
+                        _count = count;
+                    let ringRate = 1;
+                    if (rate < 0.3) {
+                        _count = parseInt((count / 0.3) * rate);
+                    } else if (rate < 0.7) {
+                        if (rate < 0.3 + ringDura) {
+                            ringRate = (rate - 0.3) / ringDura;
+                        }
+                    } else {
+                        start = parseInt((count / 0.3) * (rate - 0.7));
+                        ring.material.opacity = 0;
+                    }
+                    line.geometry.setDrawRange(start, _count);
+                    ring.material.opacity = 1 - ringRate;
+                    ring.scale.setScalar(1 + ringRate * 3);
+                });
+            });
         },
         addLines() {
             let pos = {
@@ -234,12 +380,7 @@ export default {
                 // let lat = (Math.random() - 0.5) * 180,
                 //     lng = (Math.random() - 0.5) * 360;
 
-                let phi = ((90 - lat) * Math.PI) / 180;
-                let theta = ((180 - lng) * Math.PI) / 180;
-
-                let x = 100 * Math.sin(phi) * Math.cos(theta),
-                    y = 100 * Math.cos(phi),
-                    z = 100 * Math.sin(phi) * Math.sin(theta);
+                let {x, y, z} = latlngTo3d(lng, lat, 100);
 
                 let radius = (size / maxSize) * 0.5 + 0.2;
                 // const geometry = new THREE.CylinderGeometry(radius, radius, 20);

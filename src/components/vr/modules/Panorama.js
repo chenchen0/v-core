@@ -29,6 +29,10 @@ const atmosphereMaterial = {
 };
 
 export default class Panorama {
+    //动画列表
+    _animateFuncs = {};
+    //控制器
+    _ctrls = {};
     /*
         domContainer: string/dom，视图容器
     */
@@ -55,11 +59,6 @@ export default class Panorama {
             shaderParams: null //外发光参数，参考 atmosphereMaterial
         }
     }) {
-        //动画列表
-        this._animateFuncs = {};
-        //控制器
-        this._ctrls = {};
-
         this.el = $(domContainer);
         if (!domContainer || this.el.length == 0) {
             throw new Error("No dom container for 3d store");
@@ -126,11 +125,11 @@ export default class Panorama {
         this._resizeObserver.observe(this.el[0]);
     }
 
-    _animate(time) {
-        requestAnimationFrame(this._animate.bind(this));
+    _animate = time => {
+        requestAnimationFrame(this._animate);
         _.forEach(this._animateFuncs, (func, key) => {
             try {
-                func && func();
+                func && func(time);
             } catch (err) {
                 console.error("3d store animate err, key=" + key, err);
             }
@@ -140,7 +139,7 @@ export default class Panorama {
         });
         this._stats && this._stats.update();
         this.renderer.render(this.scene, this.camera);
-    }
+    };
     createGlobe({radius, materialProps, mesh, outGlow, shaderParams}) {
         if (!mesh) {
             const geometry = new THREE.IcosahedronGeometry(radius, 15);
