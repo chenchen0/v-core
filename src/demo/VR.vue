@@ -6,6 +6,7 @@
 
 <script>
 import {Panorama} from "../VR";
+// import {Panorama} from "@aaa/VR";
 
 import * as THREE from "three";
 

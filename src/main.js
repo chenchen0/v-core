@@ -14,8 +14,7 @@ Vue.config.productionTip = false;
 
 Vue.use(ElementUI, {size: "small"});
 
-// import VCore from "./index";
-import VCore from "../lib/index.umd";
+import VCore from "./index";
 Vue.use(VCore);
 
 new Vue({

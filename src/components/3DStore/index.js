@@ -6,11 +6,13 @@
 import Store from "./modules/Store";
 import Box from "./modules/Box";
 import Shelf from "./modules/Shelf";
+import * as utils from "./utils";
 
-export {Store, Box, Shelf};
+export {Store, Box, Shelf, utils};
 
 export default {
     Store,
     Box,
-    Shelf
+    Shelf,
+    utils
 };

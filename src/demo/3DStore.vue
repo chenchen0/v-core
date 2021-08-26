@@ -5,9 +5,14 @@
 </template>
 
 <script>
-import {Store, Box, Shelf} from "../V3DStore";
+import {Store, Box, Shelf, utils} from "../V3DStore";
 import * as THREE from "three";
 
+const loadTextures = function() {
+    let texture = utils.loadTexture(require("../assets/textures/box-1.jpg"));
+    utils.preTexture("box_1", texture);
+};
+loadTextures();
 export default {
     data() {
         return {
@@ -24,9 +29,16 @@ export default {
                 shadow: true
             });
             //放一个物品
-            // this.store.add(new Box().getObject3d());
+            this.store.add(
+                new Box({
+                    materialProps: {
+                        // map: utils.loadTexture(require("../assets/textures/box-1.jpg"))
+                        map: "box_1"
+                    }
+                }).get3d()
+            );
             //放-片物品
-            this.addBoxs();
+            // this.addBoxs();
         },
         addBoxs() {
             /*
@@ -41,7 +53,6 @@ export default {
                 .
                 .
                 x8
-
             */
             let areas = 2,
                 locs = 8,
@@ -62,7 +73,7 @@ export default {
                             let x = x0 + (sizeX + boxGap) * i + (areaGap + sizeX * deep + boxGap + (deep - 1)) * a;
                             let z = z0 + (locGap + sizeZ * rows + boxGap * (rows - 1)) * l + (sizeZ + boxGap) * r;
                             let position = [x, 0, z];
-                            this.store.add(new Box({position, size}).getObject3d());
+                            this.store.add(new Box({position, size}).get3d());
                         });
                     });
                 });
