@@ -9,8 +9,9 @@ import {Store, Box, Shelf, utils} from "../V3DStore";
 import * as THREE from "three";
 
 const loadTextures = function() {
-    let texture = utils.loadTexture(require("../assets/textures/box-1.jpg"));
-    utils.preTexture("box_1", texture);
+    utils.preTexture("box_grid_1", utils.loadTexture(require("../assets/textures/box-grid-1.jpg")));
+    utils.preTexture("box_grid_2", utils.loadTexture(require("../assets/textures/box-grid-2.png")));
+    utils.preTexture("box_1", utils.loadTexture(require("../assets/textures/box-1.png")));
 };
 loadTextures();
 export default {
@@ -29,16 +30,16 @@ export default {
                 shadow: true
             });
             //放一个物品
-            this.store.add(
-                new Box({
-                    materialProps: {
-                        // map: utils.loadTexture(require("../assets/textures/box-1.jpg"))
-                        map: "box_1"
-                    }
-                }).get3d()
-            );
+            // this.store.add(
+            //     new Box({
+            //         materialProps: {
+            //             map: "box_1"
+            //         }
+            //         // faceUvType: utils.CUBE_FACE_UV_GRID_COMPACT
+            //     }).get3d()
+            // );
             //放-片物品
-            // this.addBoxs();
+            this.addBoxs();
         },
         addBoxs() {
             /*
@@ -73,7 +74,15 @@ export default {
                             let x = x0 + (sizeX + boxGap) * i + (areaGap + sizeX * deep + boxGap + (deep - 1)) * a;
                             let z = z0 + (locGap + sizeZ * rows + boxGap * (rows - 1)) * l + (sizeZ + boxGap) * r;
                             let position = [x, 0, z];
-                            this.store.add(new Box({position, size}).get3d());
+                            this.store.add(
+                                new Box({
+                                    position,
+                                    size,
+                                    materialProps: {
+                                        map: "box_1"
+                                    }
+                                }).get3d()
+                            );
                         });
                     });
                 });

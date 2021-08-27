@@ -4,15 +4,9 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import $ from "jquery";
 import _ from "lodash";
 
-import Box from "./Box";
-
 const _dev = process.env.NODE_ENV == "development";
 
 export default class Store {
-    //动画列表
-    _animateFuncs = {};
-    //控制器
-    _ctrls = {};
     /*
         domContainer: string/dom，视图容器
     */
@@ -30,6 +24,14 @@ export default class Store {
         fog, //雾
         shadow = false //阴影
     }) {
+        //动画列表
+        this._animateFuncs = {};
+        //控制器
+        this._ctrls = {};
+        //渲染控制
+        this._needRenders = {};
+        this._renderTimer = {};
+
         this.el = $(domContainer);
         if (!domContainer || this.el.length == 0) {
             throw new Error("No dom container for 3d store");
@@ -94,26 +96,41 @@ export default class Store {
                 this.camera.updateProjectionMatrix();
                 this._ctrls.camera && this._ctrls.camera.update();
                 this.renderer.setSize(width, height);
+                this._timeRender();
             }, 200);
         });
         this._resizeObserver.observe(this.el[0]);
     }
-
-    _animate = time => {
-        requestAnimationFrame(this._animate);
+    _timeRender(key = "scene", time = 1000) {
+        let timer = this._renderTimer[key];
+        timer && clearTimeout(timer);
+        this._needRenders[key] = true;
+        this._renderTimer[key] = setTimeout(() => {
+            this._needRenders[key] = false;
+        }, time);
+    }
+    _animate(time) {
+        requestAnimationFrame(this._animate.bind(this));
+        this._render(time);
+    }
+    _render(time) {
+        let needRender = !time || this._needRenders["scene"];
         _.forEach(this._animateFuncs, (func, key) => {
+            needRender = true;
             try {
-                func && func();
+                func && func(time);
             } catch (err) {
                 console.error("3d store animate err, key=" + key, err);
             }
         });
-        _.forEach(this._ctrls, ctrl => {
-            ctrl.update();
+        _.forEach(this._ctrls, (ctrl, name) => {
+            let _needRender = this._needRenders[name];
+            _needRender && ctrl.update();
+            needRender = needRender || _needRender;
         });
         this._stats && this._stats.update();
-        this.renderer.render(this.scene, this.camera);
-    };
+        needRender && this.renderer.render(this.scene, this.camera);
+    }
     setGround(ground) {
         this.remove(this._ground);
         this._ground = ground;
@@ -171,7 +188,6 @@ export default class Store {
             dire.shadow.camera.bottom = 10000;
             dire.shadow.mapSize.set(8192, 8192);
             // dire.shadow.camera.updateProjectionMatrix();
-
             lights = [ambient, dire];
         }
         this._lights = lights;
@@ -183,6 +199,7 @@ export default class Store {
         });
     }
     setCameraCtrl(ctrl) {
+        this._ctrls.camera && this._ctrls.camera.dispose();
         if (!ctrl) {
             ctrl = new OrbitControls(this.camera, this.renderer.domElement);
             ctrl.dampingFactor = 0.2;
@@ -193,6 +210,15 @@ export default class Store {
             let maxDistance = fog.far * 0.8 || 1 / fog.density;
             ctrl.maxDistance = maxDistance;
         }
+        ctrl.addEventListener("change", () => {
+            this._timeRender("camera");
+        });
+        ctrl.addEventListener("start", () => {
+            this._timeRender("camera");
+        });
+        ctrl.addEventListener("end", () => {
+            this._timeRender("camera", 0);
+        });
         this._ctrls.camera = ctrl;
     }
     lookAt(lookAt) {
@@ -208,13 +234,18 @@ export default class Store {
     removeAnimate(key) {
         delete this._animateFuncs[key];
     }
-    add(objs) {
+    add(objs, matrixAutoUpdate = false) {
         if (objs && !(objs instanceof Array)) {
             objs = [objs];
         }
         _.forEach(objs, obj => {
+            obj.matrixAutoUpdate = matrixAutoUpdate;
             this.scene.add(obj);
+            if (!obj.matrixAutoUpdate) {
+                obj.updateMatrix();
+            }
         });
+        this._timeRender();
     }
     remove(objs) {
         if (objs && !(objs instanceof Array)) {
@@ -223,5 +254,6 @@ export default class Store {
         _.forEach(objs, obj => {
             this.scene.remove(obj);
         });
+        this._timeRender();
     }
 }
